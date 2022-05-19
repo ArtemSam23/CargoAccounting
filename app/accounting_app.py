@@ -476,8 +476,3 @@ class AccountingApp:
 
         if self.running:
             self.root.mainloop()
-
-
-if __name__ == '__main__':
-    app = AccountingApp()
-    app.start()
