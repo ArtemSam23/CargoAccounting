@@ -403,7 +403,7 @@ class AccountingApp:
         request_button.config(command=request)
         request_button.place(rely=0.8, relx=0.05, relwidth=0.9, relheight=0.15)
 
-    def update_truck_info_box(self):
+    def update_truck_info_box(self, *args):
         if self.info_label is None:
             self.info_label = tkinter.Label(master=self.center_frame,
                                             font=DEFAULT_FONT,
