@@ -44,7 +44,6 @@ class Truck:
         self.height = TRUCKS[name.lower()]["высота"]
         self.picture = TRUCKS[name.lower()]["фото"]
         self.holding_capacity = self.get_volume()
-
         self.at_work = False
         self.destination = "гараж"
 

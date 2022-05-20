@@ -70,6 +70,14 @@ class AccountingApp:
         self.right_frame.place(relx=left_width + 0.02, rely=0.01, relwidth=left_width - 0.01, relheight=0.98)
 
     def setup_sort_buttons(self):
+        sort_button2 = tkinter.Button(master=self.right_frame,
+                                      text="Показать все машины",
+                                      font=DEFAULT_FONT,
+                                      bg=BUTTON_COLOR)
+
+        sort_button2.config(command=lambda: (self.update_listbox(self.account.show_all_trucks())))
+        sort_button2.pack(side="top", fill="x")
+
         sort_button = tkinter.Button(master=self.right_frame,
                                      text="Показать машины в работе",
                                      font=DEFAULT_FONT,
@@ -83,14 +91,6 @@ class AccountingApp:
                                       bg=BUTTON_COLOR)
         sort_button1.config(command=lambda: (self.update_listbox(self.account.show_available_trucks())))
         sort_button1.pack(side="top", fill="x")
-
-        sort_button2 = tkinter.Button(master=self.right_frame,
-                                      text="Показать все машины",
-                                      font=DEFAULT_FONT,
-                                      bg=BUTTON_COLOR)
-
-        sort_button2.config(command=lambda: (self.update_listbox(self.account.show_all_trucks())))
-        sort_button2.pack(side="top", fill="x")
 
         sort_button3 = tkinter.Button(master=self.right_frame,
                                       text="Отсортировать по грузоподъемности",
@@ -490,9 +490,9 @@ class AccountingApp:
         self.setup_window()
         self.setup_frames()
         self.setup_sort_buttons()
-        self.setup_add_button()
-        self.setup_remove_button()
-        self.setup_remove_info_button()
+        # self.setup_add_button()
+        # self.setup_remove_button()
+        # self.setup_remove_info_button()
         self.setup_request_frame()
         self.listbox_values = self.account.show_all_trucks()
         self.setup_listbox()
