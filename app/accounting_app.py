@@ -15,6 +15,14 @@ DEFAULT_FONT = ("Arial", 12)
 DEFAULT_FONT_BIG = ("Arial", 16)
 
 
+def is_float(s: str):
+    try:
+        float(s)
+    except ValueError:
+        return False
+    return True
+
+
 class AccountingApp:
     def __init__(self):
         self.running = True
@@ -320,11 +328,11 @@ class AccountingApp:
             def submit():
                 for i in range(int(choose_amount.get())):
                     assert entry_name.get().isalpha(), "Название должно состоять только из букв"
-                    assert all([entry_mass.get().isdecimal(),
-                                entry_length.get().isdecimal(),
-                                entry_width.get().isdecimal(),
-                                entry_height.get().isdecimal()]), "Неверная информация о грузе\n" \
-                                                                  "В полях должно быть числовое значение"
+                    assert all([is_float(entry_mass.get()),
+                                is_float(entry_length.get()),
+                                is_float(entry_width.get()),
+                                is_float(entry_height.get())]), "Неверная информация о грузе\n" \
+                                                                "В полях должно быть числовое значение"
                     assert entry_city.get(), "Поле адреса не должно быть пустым"
 
                     new_cargo = f"{entry_name.get()} | {entry_mass.get()} кг | " \
@@ -468,11 +476,8 @@ class AccountingApp:
         self.setup_remove_button()
         self.setup_remove_info_button()
         self.setup_request_frame()
-
         self.listbox_values = self.account.show_all_trucks()
         self.setup_listbox()
-
         self.update_truck_info_box()
-
         if self.running:
             self.root.mainloop()
