@@ -6,6 +6,8 @@ from cargo_accounting import CargoAccounting
 from cargo import Cargo
 from truck import Truck, TRUCKS
 
+import sys
+
 BG_COLOR = "#0d47a1"
 BUTTON_COLOR = "#cfd8dc"
 FRAME_COLOR = "#eceff1"
@@ -23,12 +25,26 @@ def is_float(s: str):
     return True
 
 
+class MenuBar(tkinter.Menu):
+    def __init__(self, parent, add_trucks_command, delete_trucks_command):
+        tkinter.Menu.__init__(self, parent)
+        file_menu = tkinter.Menu(self, tearoff=False)
+        self.add_cascade(label="Файл", underline=0, menu=file_menu)
+        file_menu.add_command(label='Добавить машины в автопарк', command=add_trucks_command)
+        file_menu.add_command(label='Удалить выделенные машины из автопарка', command=delete_trucks_command)
+        file_menu.add_command(label="Выход", underline=1, command=self.quit)
+
+    def quit(self):
+        sys.exit(0)
+
+
 class AccountingApp:
     def __init__(self):
         self.running = True
         self.root = tkinter.Tk()
+        self.root.tk.call('tk', 'windowingsystem')
+        self.root.option_add('*tearOff', False)
         self.account = CargoAccounting()
-
         self.listbox_values = self.account.show_all_trucks()
         self.listbox = tkinter.Listbox()
         self.info_label = None
@@ -42,6 +58,7 @@ class AccountingApp:
         self.root.geometry("1280x720")
         self.root.resizable(True, True)
         self.root.minsize(1160, 630)
+        self.root['menu'] = MenuBar(self.root, self.add_trucks, self.remove_trucks)
 
     def setup_frames(self):
         left_width = 0.33
@@ -83,63 +100,62 @@ class AccountingApp:
             command=lambda: self.update_listbox(self.account.sort_by_load_capacity(self.listbox_values, from_max=True)))
         sort_button3.pack(side="top", fill="x")
 
+    def add_trucks(self):
+        window = tkinter.Toplevel()
+        window['bg'] = BG_COLOR
+        window.geometry("300x200+300+200")
+        window.resizable(False, False)
+        window.title("Добавление машины")
+
+        type_label_frame = tkinter.LabelFrame(master=window,
+                                              bg=FRAME_COLOR,
+                                              text="Выберите тип машины",
+                                              font=DEFAULT_FONT)
+
+        trucks_options = [truck.upper() for truck in TRUCKS.keys()]
+        choose_type = ttk.Combobox(master=type_label_frame,
+                                   values=trucks_options)
+
+        type_label_frame.place(rely=0.01, relx=0.01, relwidth=0.98, relheight=0.4)
+        choose_type.set(trucks_options[0])
+        choose_type.pack()
+
+        amount_label_frame = tkinter.LabelFrame(master=window,
+                                                bg=FRAME_COLOR,
+                                                text="Укажите количество",
+                                                font=DEFAULT_FONT)
+
+        choose_amount = tkinter.Scale(master=amount_label_frame,
+                                      from_=1,
+                                      to=10,
+                                      orient="horizontal",
+                                      troughcolor=FRAME_COLOR,
+                                      relief=tkinter.FLAT)
+
+        amount_label_frame.place(rely=0.42, relx=0.01, relwidth=0.98, relheight=0.4)
+        choose_amount.pack(fill="x")
+
+        submit_button = tkinter.Button(master=window,
+                                       text="Принять",
+                                       font=DEFAULT_FONT,
+                                       bg=BUTTON_COLOR)
+
+        def submit():
+            for _ in range(int(choose_amount.get())):
+                truck = Truck(choose_type.get())
+                self.account.add_truck(truck)
+
+        submit_button.config(command=lambda: (submit(),
+                                              self.update_listbox(self.account.show_all_trucks()),
+                                              window.destroy()))
+        submit_button.pack(side="bottom", fill="x")
+
     def setup_add_button(self):
         add_button = tkinter.Button(master=self.center_frame,
                                     text="Добавить машины в автопарк",
                                     font=DEFAULT_FONT,
                                     bg=BUTTON_COLOR)
-
-        def add_trucks():
-            window = tkinter.Toplevel()
-            window['bg'] = BG_COLOR
-            window.geometry("300x200+300+200")
-            window.resizable(False, False)
-            window.title("Добавление машины")
-
-            type_label_frame = tkinter.LabelFrame(master=window,
-                                                  bg=FRAME_COLOR,
-                                                  text="Выберите тип машины",
-                                                  font=DEFAULT_FONT)
-
-            trucks_options = [truck.upper() for truck in TRUCKS.keys()]
-            choose_type = ttk.Combobox(master=type_label_frame,
-                                       values=trucks_options)
-
-            type_label_frame.place(rely=0.01, relx=0.01, relwidth=0.98, relheight=0.4)
-            choose_type.set(trucks_options[0])
-            choose_type.pack()
-
-            amount_label_frame = tkinter.LabelFrame(master=window,
-                                                    bg=FRAME_COLOR,
-                                                    text="Укажите количество",
-                                                    font=DEFAULT_FONT)
-
-            choose_amount = tkinter.Scale(master=amount_label_frame,
-                                          from_=1,
-                                          to=10,
-                                          orient="horizontal",
-                                          troughcolor=FRAME_COLOR,
-                                          relief=tkinter.FLAT)
-
-            amount_label_frame.place(rely=0.42, relx=0.01, relwidth=0.98, relheight=0.4)
-            choose_amount.pack(fill="x")
-
-            submit_button = tkinter.Button(master=window,
-                                           text="Принять",
-                                           font=DEFAULT_FONT,
-                                           bg=BUTTON_COLOR)
-
-            def submit():
-                for _ in range(int(choose_amount.get())):
-                    truck = Truck(choose_type.get())
-                    self.account.add_truck(truck)
-
-            submit_button.config(command=lambda: (submit(),
-                                                  self.update_listbox(self.account.show_all_trucks()),
-                                                  window.destroy()))
-            submit_button.pack(side="bottom", fill="x")
-
-        add_button.config(command=add_trucks)
+        add_button.config(command=self.add_trucks)
         add_button.pack(side="top", fill="x")
 
     def setup_remove_info_button(self):
@@ -154,47 +170,47 @@ class AccountingApp:
         remove_info_button.config(command=remove_info)
         remove_info_button.pack(side="top", fill="x")
 
+    def remove_trucks(self):
+        window = tkinter.Toplevel()
+        window['bg'] = BG_COLOR
+        window.geometry("300x100+300+200")
+        window.resizable(False, False)
+        window.title("Удаление машин")
+
+        label_frame = tkinter.LabelFrame(master=window,
+                                         bg=FRAME_COLOR)
+
+        label = tkinter.Label(master=label_frame,
+                              text="Удалить выделенные машины?\n\n"
+                                   "(это действие нельзя отменить)",
+                              font=DEFAULT_FONT,
+                              bg=FRAME_COLOR)
+
+        submit_button = tkinter.Button(master=label_frame,
+                                       text="Да",
+                                       font=DEFAULT_FONT,
+                                       bg=BUTTON_COLOR)
+
+        def delete_trucks():
+            for item in self.listbox.curselection()[::-1]:
+                removed_truck = self.listbox_values.pop(item)
+                self.listbox.delete(item)
+                self.account.remove_truck(removed_truck)
+                self.info_label.config(text='', compound='top')
+
+        submit_button.config(command=lambda: (window.destroy(),
+                                              delete_trucks()))
+        label_frame.pack(fill="both", expand=True)
+        submit_button.pack(fill="x", side="bottom")
+        label.pack()
+
     def setup_remove_button(self):
         remove_button = tkinter.Button(master=self.center_frame,
                                        text="Удалить машины из автопарка",
                                        font=DEFAULT_FONT,
                                        bg=BUTTON_COLOR)
 
-        def remove_trucks():
-            window = tkinter.Toplevel()
-            window['bg'] = BG_COLOR
-            window.geometry("300x100+300+200")
-            window.resizable(False, False)
-            window.title("Удаление машин")
-
-            label_frame = tkinter.LabelFrame(master=window,
-                                             bg=FRAME_COLOR)
-
-            label = tkinter.Label(master=label_frame,
-                                  text="Удалить выделенные машины?\n\n"
-                                       "(это действие нельзя отменить)",
-                                  font=DEFAULT_FONT,
-                                  bg=FRAME_COLOR)
-
-            submit_button = tkinter.Button(master=label_frame,
-                                           text="Да",
-                                           font=DEFAULT_FONT,
-                                           bg=BUTTON_COLOR)
-
-            def delete_trucks():
-                for item in self.listbox.curselection()[::-1]:
-                    removed_truck = self.listbox_values.pop(item)
-                    self.listbox.delete(item)
-                    self.account.remove_truck(removed_truck)
-                    self.info_label.config(text='', compound='top')
-
-            submit_button.config(command=lambda: (window.destroy(),
-                                                  delete_trucks()))
-            label_frame.pack(fill="both", expand=True)
-            submit_button.pack(fill="x", side="bottom")
-            label.pack()
-
-        remove_button.config(command=remove_trucks)
+        remove_button.config(command=self.remove_trucks)
         remove_button.pack(side="top", fill="x")
 
     # noinspection PyTypeChecker
