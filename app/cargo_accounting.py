@@ -34,9 +34,6 @@ class CargoAccounting:
             self._available_trucks.remove(truck)
         elif truck in self._trucks_at_work:
             self._trucks_at_work.remove(truck)
-        else:
-            # print("not in trucks")
-            pass
 
     def show_all_trucks(self):
         return self._available_trucks + self._trucks_at_work
@@ -64,7 +61,6 @@ class CargoAccounting:
                 if truck.load_capacity * 1000 >= cargo.weight and truck.holding_capacity >= cargo.get_volume():
                     truck.load_capacity -= cargo.weight / 1000
                     truck.holding_capacity -= cargo.get_volume()
-                    # print(truck.load_capacity, truck.holding_capacity)
                     truck_loads[i] += 1
                     break
 
