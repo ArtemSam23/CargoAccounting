@@ -33,8 +33,8 @@ class AccountingApp:
         self.listbox = tkinter.Listbox()
         self.info_label = None
         self.left_frame = tkinter.LabelFrame(self.root, bg=FRAME_COLOR)
-        self.center_frame = tkinter.Frame(self.root, bg=FRAME_COLOR)
-        self.right_frame = tkinter.Frame(self.root, bg=FRAME_COLOR)
+        self.center_frame = tkinter.LabelFrame(self.root, bg=FRAME_COLOR)
+        self.right_frame = tkinter.LabelFrame(self.root, bg=FRAME_COLOR)
 
     def setup_window(self):
         self.root['bg'] = BG_COLOR
@@ -47,8 +47,10 @@ class AccountingApp:
         left_width = 0.33
         self.left_frame.config(text="Бронирование перевозок", font=DEFAULT_FONT)
         self.left_frame.place(relx=0.01, rely=0.01, relwidth=left_width, relheight=0.98)
-        self.center_frame.place(relx=left_width + 0.02, rely=0.01, relwidth=left_width - 0.01, relheight=0.98)
-        self.right_frame.place(relx=left_width * 2 + 0.02, rely=0.01, relwidth=left_width - 0.02, relheight=0.98)
+        self.center_frame.config(text="Информация о машине", font=DEFAULT_FONT)
+        self.center_frame.place(relx=left_width * 2 + 0.02, rely=0.01, relwidth=left_width - 0.02, relheight=0.98)
+        self.right_frame.config(text="Автопарк", font=DEFAULT_FONT)
+        self.right_frame.place(relx=left_width + 0.02, rely=0.01, relwidth=left_width - 0.01, relheight=0.98)
 
     def setup_sort_buttons(self):
         sort_button = tkinter.Button(master=self.right_frame,
